@@ -1,0 +1,46 @@
+
+/* Global text + font */
+* {
+  color: #ececec;
+  font-family: Roboto, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #212121;
+}
+
+/* Flex layout: sidebar + chat window */
+.app {
+  display: flex;
+  height: 100vh;  /* fill full screen */
+  width: 100vw;   /* fill full width */
+  background-color: #212121;
+}
+
+/* Sidebar always fixed width */
+.sidebar {
+  width: 320px;       /* you already use 320px */
+  flex-shrink: 0;     /* don’t shrink on refresh */
+  height: 100%;
+  background-color: #171717;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Chat window grows to take remaining space */
+.chat-window {
+  flex: 1;            /* take all leftover space */
+  height: 100%;
+  background-color: #212121;
+  display: flex;
+  flex-direction: column;
+}
+.chats {
+    flex: 1;
+    overflow-y: auto;  /* ✅ only appears when needed */
+    padding: 2rem;
+    box-sizing: border-box;
+}

@@ -1,0 +1,48 @@
+.chats {
+    max-width: 100%;
+    overflow-y: scroll;
+    padding: 6rem;
+    padding-right: calc(28px); /* account for scrollbar width */
+    overflow-y: auto;
+    align-items: center;
+}
+
+.agendaText {
+  text-align: center;
+  margin-top: 20%;
+  font-size: 1.8rem;
+  color: #ececec;
+  font-style: italic;   /* ensures italic */
+  font-weight: normal;  /
+}
+
+
+
+.userDiv {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 0.9rem;
+}
+
+
+.gptDiv {
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.userMessage {
+    background-color: #323232;
+    padding: 10px 20px;
+    border-radius: 14px;
+    margin-left: 15rem;
+    max-width: 500px;
+    width: fit-content;
+}
+
+.hljs {
+    border-radius: 14px !important;
+}
+
+pre {
+    white-space: pre-wrap;
+}
