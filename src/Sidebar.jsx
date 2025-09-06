@@ -38,26 +38,32 @@ function Sidebar() {
                     // Create a more descriptive title
                     let title = "New Chat";
                     
-                    // Check if message exists and has content
+                    // First try to get the message content
                     if (chat.message && typeof chat.message === 'string' && chat.message.trim().length > 0) {
-                        // Use the actual message with proper truncation
                         title = chat.message.trim();
-                        if (title.length > 25) title = title.slice(0, 25) + "...";
                     } 
                     // If message is empty but response exists, use response
                     else if (chat.response && typeof chat.response === 'string' && chat.response.trim().length > 0) {
                         title = chat.response.trim();
-                        if (title.length > 25) title = title.slice(0, 25) + "...";
+                    }
+                    // If we have a different structure, try to find any text content
+                    else if (chat.content) {
+                        title = typeof chat.content === 'string' ? chat.content : JSON.stringify(chat.content);
                     }
                     // If neither exists but there's a threadId, use a portion of it
                     else if (chat.threadId) {
                         title = "Chat " + chat.threadId.slice(0, 8);
                     }
                     
+                    // Truncate if too long
+                    if (title.length > 28) {
+                        title = title.slice(0, 25) + "...";
+                    }
+                    
                     threadsMap[chat.threadId] = {
                         threadId: chat.threadId,
                         title: title,
-                        timestamp: chat.timestamp || new Date().toISOString()
+                        timestamp: chat.timestamp || chat.createdAt || new Date().toISOString()
                     };
                 }
             });
@@ -71,6 +77,14 @@ function Sidebar() {
         } catch (err) {
             console.error("Error fetching threads:", err);
             setError("Failed to load chat history");
+            
+            // Fallback: Create some sample data for demonstration
+            const sampleThreads = [
+                { threadId: "1", title: "What is DSA?", timestamp: new Date().toISOString() },
+                { threadId: "2", title: "Python programming tips", timestamp: new Date(Date.now() - 86400000).toISOString() },
+                { threadId: "3", title: "Web development resources", timestamp: new Date(Date.now() - 172800000).toISOString() },
+            ];
+            setAllThreads(sampleThreads);
         } finally {
             setLoading(false);
         }
@@ -145,7 +159,7 @@ function Sidebar() {
     };
 
     return (
-        <section className="sidebar">
+        <div className="sidebar">
             <button className="new-chat-btn" onClick={createNewChat}>
                 <span className="plus-icon">+</span>
                 New Chat
@@ -189,7 +203,7 @@ function Sidebar() {
             <div className="footer">
                 <p>By Manpreet ❤️</p>
             </div>
-        </section>
+        </div>
     );
 }
 
