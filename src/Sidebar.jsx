@@ -1,7 +1,7 @@
-import "./Sidebar.css";
 import { useContext, useEffect, useState } from "react";
 import { MyContext } from "./MyContext.jsx";
 import { v1 as uuidv1 } from "uuid";
+import "./Sidebar.css";
 
 function Sidebar() {
     const {
@@ -38,14 +38,20 @@ function Sidebar() {
                     // Create a more descriptive title
                     let title = "New Chat";
                     
-                    if (chat.message && chat.message.trim().length > 0) {
+                    // Check if message exists and has content
+                    if (chat.message && typeof chat.message === 'string' && chat.message.trim().length > 0) {
                         // Use the actual message with proper truncation
-                        title = chat.message.trim().slice(0, 30);
-                        if (chat.message.length > 30) title += "...";
-                    } else if (chat.response && chat.response.trim().length > 0) {
-                        // If message is empty but response exists, use response
-                        title = "AI: " + chat.response.trim().slice(0, 27);
-                        if (chat.response.length > 27) title += "...";
+                        title = chat.message.trim();
+                        if (title.length > 25) title = title.slice(0, 25) + "...";
+                    } 
+                    // If message is empty but response exists, use response
+                    else if (chat.response && typeof chat.response === 'string' && chat.response.trim().length > 0) {
+                        title = chat.response.trim();
+                        if (title.length > 25) title = title.slice(0, 25) + "...";
+                    }
+                    // If neither exists but there's a threadId, use a portion of it
+                    else if (chat.threadId) {
+                        title = "Chat " + chat.threadId.slice(0, 8);
                     }
                     
                     threadsMap[chat.threadId] = {
@@ -78,8 +84,15 @@ function Sidebar() {
         setNewChat(true);
         setPrompt("");
         setReply(null);
-        setCurrThreadId(uuidv1());
+        const newThreadId = uuidv1();
+        setCurrThreadId(newThreadId);
         setPrevChats([]);
+        
+        // Add the new thread to the list immediately
+        setAllThreads(prev => [
+            { threadId: newThreadId, title: "New Chat", timestamp: new Date().toISOString() },
+            ...prev
+        ]);
     };
 
     const changeThread = async (newThreadId) => {
@@ -134,42 +147,47 @@ function Sidebar() {
     return (
         <section className="sidebar">
             <button className="new-chat-btn" onClick={createNewChat}>
-                <img src="src/assets/veridalogo.png" alt="gpt logo" className="logo" />
-                <span>+ New Chat</span>
+                <span className="plus-icon">+</span>
+                New Chat
             </button>
 
-            {loading && <div className="sidebar-loading">Loading chats...</div>}
-            {error && <div className="sidebar-error">{error}</div>}
-
-            <div className="history">
+            <div className="history-section">
                 <h3>Chat History</h3>
-                {allThreads && allThreads.length > 0 ? (
-                    <ul>
-                        {allThreads.map((thread) => (
-                            <li
-                                key={thread.threadId}
-                                onClick={() => changeThread(thread.threadId)}
-                                className={thread.threadId === currThreadId ? "highlighted" : ""}
-                            >
-                                <span className="thread-title">{thread.title}</span>
-                                <i
-                                    className="fa-solid fa-trash delete-btn"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        deleteThread(thread.threadId);
-                                    }}
-                                    title="Delete chat"
-                                ></i>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    !loading && <div className="no-chats">No chat history yet</div>
-                )}
+                {loading && <div className="sidebar-loading">Loading chats...</div>}
+                {error && <div className="sidebar-error">{error}</div>}
+
+                <div className="history-list">
+                    {allThreads && allThreads.length > 0 ? (
+                        <ul>
+                            {allThreads.map((thread) => (
+                                <li
+                                    key={thread.threadId}
+                                    onClick={() => changeThread(thread.threadId)}
+                                    className={thread.threadId === currThreadId ? "highlighted" : ""}
+                                >
+                                    <span className="thread-icon">💬</span>
+                                    <span className="thread-title">{thread.title}</span>
+                                    <button
+                                        className="delete-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            deleteThread(thread.threadId);
+                                        }}
+                                        title="Delete chat"
+                                    >
+                                        🗑️
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        !loading && <div className="no-chats">No chat history yet</div>
+                    )}
+                </div>
             </div>
 
-            <div className="sign">
-                <p>By Manpreet &hearts;</p>
+            <div className="footer">
+                <p>By Manpreet ❤️</p>
             </div>
         </section>
     );
