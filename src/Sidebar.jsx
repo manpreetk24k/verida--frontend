@@ -18,6 +18,44 @@ function Sidebar() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    // Function to extract a meaningful title from chat content
+    const extractTitle = (chat) => {
+        // If there's a custom title field, use it
+        if (chat.title && chat.title !== "New Chat") {
+            return chat.title;
+        }
+        
+        // Try to get from message content
+        if (chat.message && typeof chat.message === 'string' && chat.message.trim().length > 0) {
+            const message = chat.message.trim();
+            // Extract first sentence or meaningful part
+            const firstSentence = message.split(/[.!?]/)[0];
+            if (firstSentence && firstSentence.length > 5) {
+                return firstSentence.length > 28 ? firstSentence.slice(0, 25) + "..." : firstSentence;
+            }
+            return message.length > 28 ? message.slice(0, 25) + "..." : message;
+        } 
+        
+        // Try to get from response content
+        if (chat.response && typeof chat.response === 'string' && chat.response.trim().length > 0) {
+            const response = chat.response.trim();
+            const firstSentence = response.split(/[.!?]/)[0];
+            if (firstSentence && firstSentence.length > 5) {
+                return firstSentence.length > 28 ? firstSentence.slice(0, 25) + "..." : firstSentence;
+            }
+            return response.length > 28 ? response.slice(0, 25) + "..." : response;
+        }
+        
+        // Try to get from content field
+        if (chat.content && typeof chat.content === 'string' && chat.content.trim().length > 0) {
+            const content = chat.content.trim();
+            return content.length > 28 ? content.slice(0, 25) + "..." : content;
+        }
+        
+        // Fallback to thread ID if nothing else works
+        return "Chat " + chat.threadId.slice(0, 8);
+    };
+
     const getAllThreads = async () => {
         setLoading(true);
         setError(null);
@@ -35,30 +73,7 @@ function Sidebar() {
             const threadsMap = {};
             res.forEach(chat => {
                 if (!threadsMap[chat.threadId]) {
-                    // Create a more descriptive title
-                    let title = "New Chat";
-                    
-                    // First try to get the message content
-                    if (chat.message && typeof chat.message === 'string' && chat.message.trim().length > 0) {
-                        title = chat.message.trim();
-                    } 
-                    // If message is empty but response exists, use response
-                    else if (chat.response && typeof chat.response === 'string' && chat.response.trim().length > 0) {
-                        title = chat.response.trim();
-                    }
-                    // If we have a different structure, try to find any text content
-                    else if (chat.content) {
-                        title = typeof chat.content === 'string' ? chat.content : JSON.stringify(chat.content);
-                    }
-                    // If neither exists but there's a threadId, use a portion of it
-                    else if (chat.threadId) {
-                        title = "Chat " + chat.threadId.slice(0, 8);
-                    }
-                    
-                    // Truncate if too long
-                    if (title.length > 28) {
-                        title = title.slice(0, 25) + "...";
-                    }
+                    const title = extractTitle(chat);
                     
                     threadsMap[chat.threadId] = {
                         threadId: chat.threadId,
@@ -83,6 +98,8 @@ function Sidebar() {
                 { threadId: "1", title: "What is DSA?", timestamp: new Date().toISOString() },
                 { threadId: "2", title: "Python programming tips", timestamp: new Date(Date.now() - 86400000).toISOString() },
                 { threadId: "3", title: "Web development resources", timestamp: new Date(Date.now() - 172800000).toISOString() },
+                { threadId: "4", title: "JavaScript frameworks comparison", timestamp: new Date(Date.now() - 259200000).toISOString() },
+                { threadId: "5", title: "Machine learning basics", timestamp: new Date(Date.now() - 345600000).toISOString() },
             ];
             setAllThreads(sampleThreads);
         } finally {
@@ -201,7 +218,7 @@ function Sidebar() {
             </div>
 
             <div className="footer">
-                <p>By Manpreet ❤️</p>
+                <p>By Manpreet &hearts</p>
             </div>
         </div>
     );
