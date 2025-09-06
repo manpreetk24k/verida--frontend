@@ -17,7 +17,7 @@ function Sidebar() {
 
     const getAllThreads = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/thread`);
             const res = await response.json();
             console.log("API raw response:", res);
 
